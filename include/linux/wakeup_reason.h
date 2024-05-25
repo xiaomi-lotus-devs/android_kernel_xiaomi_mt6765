@@ -28,5 +28,13 @@ void log_suspend_abort_reason(const char *fmt, ...);
 #else
 static inline void log_suspend_abort_reason(const char *fmt, ...) { }
 #endif
-
+//xujia add for power analysis bugreport start
+#define CCCIF_CH_LEN 200
+extern int iavg4bugreport;
+extern int expamp_val;
+extern unsigned int wakereasons[32], wakecnt;
+extern unsigned int ccb_wkcnt;
+extern unsigned int cccif_wkcnt[CCCIF_CH_LEN];
+extern unsigned int spm_info[6][2];
+//xujia add for power analysis bugreport end
 #endif /* _LINUX_WAKEUP_REASON_H */

@@ -97,6 +97,8 @@ struct dentry {
 	struct super_block *d_sb;	/* The root of the dentry tree */
 	unsigned long d_time;		/* used by d_revalidate */
 	void *d_fsdata;			/* fs-specific data */
+	/* MTK:debug for hard to find reason issue */
+	void *d_fsdata_b[3];
 
 	union {
 		struct list_head d_lru;		/* LRU list */
