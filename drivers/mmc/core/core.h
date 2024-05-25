@@ -2,6 +2,7 @@
  *  linux/drivers/mmc/core/core.h
  *
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
+ *  Copyright (C) 2018 XiaoMi, Inc.
  *  Copyright 2007 Pierre Ossman
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,6 +86,15 @@ void mmc_add_card_debugfs(struct mmc_card *card);
 void mmc_remove_card_debugfs(struct mmc_card *card);
 
 void mmc_init_context_info(struct mmc_host *host);
+
+#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
+void mmc_wait_cmdq_empty(struct mmc_host *host);
+void mmc_do_check(struct mmc_host *host);
+void mmc_do_stop(struct mmc_host *host);
+void mmc_do_status(struct mmc_host *host);
+void mmc_wait_cmdq_done(struct mmc_request *mrq);
+int mmc_run_queue_thread(void *data);
+#endif
 
 int mmc_execute_tuning(struct mmc_card *card);
 int mmc_hs200_to_hs400(struct mmc_card *card);

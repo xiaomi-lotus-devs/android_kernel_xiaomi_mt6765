@@ -11,8 +11,14 @@ config HAVE_FB_ATMEL
 config SH_LCD_MIPI_DSI
 	bool
 
+config PROJECT_LOTUS
+        bool "XIAOMI F9 use"
+        ---help---
+        diff touch and lcd in F9 project.
+
 source "drivers/char/agp/Kconfig"
 
+source "drivers/gpu/arm/Kconfig"
 source "drivers/gpu/vga/Kconfig"
 
 source "drivers/gpu/host1x/Kconfig"

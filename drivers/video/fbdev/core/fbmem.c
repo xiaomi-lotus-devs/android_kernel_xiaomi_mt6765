@@ -2,6 +2,7 @@
  *  linux/drivers/video/fbmem.c
  *
  *  Copyright (C) 1994 Martin Schaller
+ *  Copyright (C) 2018 XiaoMi, Inc.
  *
  *	2001 - Documented with DocBook
  *	- Brad Douglas <brad@neruo.com>
@@ -1063,6 +1064,13 @@ fb_blank(struct fb_info *info, int blank)
 
 	event.info = info;
 	event.data = &blank;
+
+	#ifdef CONFIG_PROJECT_LOTUS
+	/*fast tp suspend in LPWG*/
+	if(blank == FB_BLANK_POWERDOWN){
+		fb_notifier_call_chain(FB_EVENT_BLANK, &event);
+	}
+	#endif
 
 	early_ret = fb_notifier_call_chain(FB_EARLY_EVENT_BLANK, &event);
 

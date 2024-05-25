@@ -2,6 +2,7 @@
  *  Sysfs interface for the universal power supply monitor class
  *
  *  Copyright © 2007  David Woodhouse <dwmw2@infradead.org>
+ *  Copyright (C) 2018 XiaoMi, Inc.
  *  Copyright © 2007  Anton Vorontsov <cbou@mail.ru>
  *  Copyright © 2004  Szabolcs Gyurko
  *  Copyright © 2003  Ian Molton <spyro@f2s.com>
@@ -45,11 +46,12 @@ static ssize_t power_supply_show_property(struct device *dev,
 					  char *buf) {
 	static char *type_text[] = {
 		"Unknown", "Battery", "UPS", "Mains", "USB",
-		"USB_DCP", "USB_CDP", "USB_ACA", "USB_C",
+		"USB_DCP", "USB_CDP", "USB_ACA", "Wireless", "USB_C",
 		"USB_PD", "USB_PD_DRP"
 	};
 	static char *status_text[] = {
-		"Unknown", "Charging", "Discharging", "Not charging", "Full"
+		"Unknown", "Charging", "Discharging", "Not charging", "Full",
+		"Cmd discharging"
 	};
 	static char *charge_type[] = {
 		"Unknown", "N/A", "Trickle", "Fast"
@@ -57,7 +59,7 @@ static ssize_t power_supply_show_property(struct device *dev,
 	static char *health_text[] = {
 		"Unknown", "Good", "Overheat", "Dead", "Over voltage",
 		"Unspecified failure", "Cold", "Watchdog timer expire",
-		"Safety timer expire"
+		"Safety timer expire", "Cool", "Warm"
 	};
 	static char *technology_text[] = {
 		"Unknown", "NiMH", "Li-ion", "Li-poly", "LiFe", "NiCd",
@@ -204,13 +206,34 @@ static struct device_attribute power_supply_attrs[] = {
 	/* Local extensions */
 	POWER_SUPPLY_ATTR(usb_hc),
 	POWER_SUPPLY_ATTR(usb_otg),
-	POWER_SUPPLY_ATTR(charge_enabled),
+	POWER_SUPPLY_ATTR(charging_enabled),
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
+	/* 20100723 James Lo */
+	POWER_SUPPLY_ATTR(batt_vol),
+	POWER_SUPPLY_ATTR(batt_temp),
+	POWER_SUPPLY_ATTR(batt_id),
+	POWER_SUPPLY_ATTR(batt_full_design),
+	/* 20100405 Add for EM */
+	POWER_SUPPLY_ATTR(TemperatureR),
+	POWER_SUPPLY_ATTR(TempBattVoltage),
+	POWER_SUPPLY_ATTR(InstatVolt),
+	POWER_SUPPLY_ATTR(BatteryAverageCurrent),
+	POWER_SUPPLY_ATTR(Ibus),
+	POWER_SUPPLY_ATTR(BatterySenseVoltage),
+	POWER_SUPPLY_ATTR(ISenseVoltage),
+	POWER_SUPPLY_ATTR(ChargerVoltage),
+	/* Dual battery */
+	POWER_SUPPLY_ATTR(status_smb),
+	POWER_SUPPLY_ATTR(capacity_smb),
+	POWER_SUPPLY_ATTR(present_smb),
+	/* ADB CMD Discharging */
+	POWER_SUPPLY_ATTR(adjust_power),
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_ATTR(model_name),
 	POWER_SUPPLY_ATTR(manufacturer),
 	POWER_SUPPLY_ATTR(serial_number),
+	POWER_SUPPLY_ATTR(batt_type),
 };
 
 static struct attribute *

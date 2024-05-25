@@ -2,6 +2,7 @@
  * LED Class Core
  *
  * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
+ * Copyright (C) 2018 XiaoMi, Inc.
  * Copyright (C) 2005-2007 Richard Purdie <rpurdie@openedhand.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,6 +65,17 @@ unlock:
 }
 static DEVICE_ATTR_RW(brightness);
 
+extern int leds_red_status;
+static ssize_t status_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	if(leds_red_status)
+		return sprintf(buf, "%u\n", 1);
+	else
+		return sprintf(buf, "%u\n", 0);
+}
+static DEVICE_ATTR_RO(status);
+
 static ssize_t max_brightness_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -87,6 +99,7 @@ static const struct attribute_group led_trigger_group = {
 static struct attribute *led_class_attrs[] = {
 	&dev_attr_brightness.attr,
 	&dev_attr_max_brightness.attr,
+	&dev_attr_status.attr,
 	NULL,
 };
 
