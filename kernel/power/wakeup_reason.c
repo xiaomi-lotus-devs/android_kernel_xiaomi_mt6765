@@ -29,6 +29,10 @@
 
 
 #define MAX_WAKEUP_REASON_IRQS 32
+//xujia add for power analysis bugreport start
+#include <linux/time.h>
+struct timeval last_wktime, now_wktime;
+//xujia add for power analysis bugreport end
 static int irq_list[MAX_WAKEUP_REASON_IRQS];
 static int irqcount;
 static bool suspend_abort;
@@ -91,13 +95,77 @@ static ssize_t last_suspend_time_show(struct kobject *kobj,
 				suspend_resume_time.tv_sec, suspend_resume_time.tv_nsec,
 				sleep_time.tv_sec, sleep_time.tv_nsec);
 }
+//xujia add for power analysis bugreport start
+static ssize_t suspend_wakereason_show(struct kobject *kobj,
+			struct kobj_attribute *attr, char *buf)
+{
+	int buf_offset = 0;
+	int i = 0;
+	bool ccif_tag = false;
 
+	if (!buf)
+		return -EINVAL;
+	buf_offset += sprintf(buf+buf_offset, "AvgI:%d\n",
+				(-iavg4bugreport/10));
+	buf_offset += sprintf(buf+buf_offset, "ExpPa:%d\n", expamp_val);
+
+	do_gettimeofday(&now_wktime);
+	if (last_wktime.tv_sec == 0)
+		last_wktime = now_wktime;
+	if ((spm_info[5][1] == 0) &&
+		((now_wktime.tv_sec - last_wktime.tv_sec) < 600))
+		return buf_offset;
+	last_wktime = now_wktime;
+	if (wakecnt == 0)
+		return buf_offset;
+	buf_offset += sprintf(buf+buf_offset, "wakeup[%d]", wakecnt);
+	for (i = 0; i < 32; i++) {
+
+		if (wakereasons[i] != 0)
+			buf_offset += sprintf(buf+buf_offset, ",[%d]%d",
+						i, wakereasons[i]);
+		wakereasons[i] = 0;
+	}
+	buf_offset += sprintf(buf+buf_offset, "\n");
+	for (i = 0; i < CCCIF_CH_LEN; i++) {
+		if (cccif_wkcnt[i] != 0) {
+			if (!ccif_tag)
+				buf_offset += sprintf(buf+buf_offset, "ccif");
+			buf_offset += sprintf(buf+buf_offset, ",[%d]%d",
+						i, cccif_wkcnt[i]);
+			ccif_tag = true;
+			cccif_wkcnt[i] = 0;
+		}
+	}
+	if (ccif_tag)
+		buf_offset += sprintf(buf+buf_offset, "\n");
+	if (ccb_wkcnt > 0)
+		buf_offset += sprintf(buf+buf_offset, "ccb:%d\n", ccb_wkcnt);
+	wakecnt = ccb_wkcnt = 0;
+	if (spm_info[5][1] > 0) {
+		buf_offset += sprintf(buf+buf_offset, "spm[%d/%d]",
+				spm_info[5][1], spm_info[5][0]);
+		for (i = 0; i < 5; i++) {
+			if (spm_info[i][1] == 0)
+				break;
+			buf_offset += sprintf(buf+buf_offset, ",[%x,%x]",
+				spm_info[i][0], spm_info[i][1]);//r13,debugflg
+			spm_info[i][0] = spm_info[i][1] = 0;
+		}
+		buf_offset += sprintf(buf+buf_offset, "\n");
+		spm_info[5][0] = spm_info[5][1] = 0;
+	}
+	return buf_offset;
+}
+static struct kobj_attribute suspend_wkreason = __ATTR_RO(suspend_wakereason);
+//xujia add for power analysis bugreport end
 static struct kobj_attribute resume_reason = __ATTR_RO(last_resume_reason);
 static struct kobj_attribute suspend_time = __ATTR_RO(last_suspend_time);
 
 static struct attribute *attrs[] = {
 	&resume_reason.attr,
 	&suspend_time.attr,
+	&suspend_wkreason.attr,//xujia add for power analysis bugreport
 	NULL,
 };
 static struct attribute_group attr_group = {
