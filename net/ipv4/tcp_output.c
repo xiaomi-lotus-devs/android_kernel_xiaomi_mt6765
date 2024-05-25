@@ -53,6 +53,8 @@ int sysctl_tcp_workaround_signed_windows __read_mostly = 0;
 /* Default TSQ limit of four TSO segments */
 int sysctl_tcp_limit_output_bytes __read_mostly = 262144;
 
+int sysctl_tcp_mtu_probing __read_mostly = 0;
+
 /* This limits the percentage of the congestion window which we
  * will allow a single TSO frame to consume.  Building TSO frames
  * which are too large can cause TCP streams to be bursty.
@@ -1386,7 +1388,7 @@ void tcp_mtup_init(struct sock *sk)
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	struct net *net = sock_net(sk);
 
-	icsk->icsk_mtup.enabled = net->ipv4.sysctl_tcp_mtu_probing > 1;
+        icsk->icsk_mtup.enabled = sysctl_tcp_mtu_probing > 1;
 	icsk->icsk_mtup.search_high = tp->rx_opt.mss_clamp + sizeof(struct tcphdr) +
 			       icsk->icsk_af_ops->net_header_len;
 	icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, net->ipv4.sysctl_tcp_base_mss);
@@ -2073,9 +2075,12 @@ static bool tcp_small_queue_check(struct sock *sk, const struct sk_buff *skb,
 {
 	unsigned int limit;
 
-	limit = max(2 * skb->truesize, sk->sk_pacing_rate >> 10);
-	limit = min_t(u32, limit, sysctl_tcp_limit_output_bytes);
-	limit <<= factor;
+	/* rollback to kernel 3.18 */
+	//limit = max(2 * skb->truesize, sk->sk_pacing_rate >> 10);
+	//limit = min_t(u32, limit, sysctl_tcp_limit_output_bytes);
+	//limit <<= factor;
+	limit = max_t(u32, sysctl_tcp_limit_output_bytes,
+		      sk->sk_pacing_rate >> 10);
 
 	if (atomic_read(&sk->sk_wmem_alloc) > limit) {
 		set_bit(TSQ_THROTTLED, &tcp_sk(sk)->tsq_flags);
