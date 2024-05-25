@@ -2,6 +2,7 @@
  *  mm/mprotect.c
  *
  *  (C) Copyright 1994 Linus Torvalds
+ *  (C) Copyright (C) 2018 XiaoMi, Inc.
  *  (C) Copyright 2002 Christoph Hellwig
  *
  *  Address space accounting code	<alan@lxorguk.ukuu.org.uk>

@@ -2,6 +2,7 @@
  *	linux/mm/mlock.c
  *
  *  (C) Copyright 1995 Linus Torvalds
+ *  (C) Copyright (C) 2018 XiaoMi, Inc.
  *  (C) Copyright 2002 Christoph Hellwig
  */
 
