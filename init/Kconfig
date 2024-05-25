@@ -832,7 +832,7 @@ config IKCONFIG_PROC
 config LOG_BUF_SHIFT
 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)"
 	range 12 25
-	default 17
+	default 21
 	depends on PRINTK
 	help
 	  Select the minimal kernel log buffer size as a power of 2.
@@ -1615,7 +1615,7 @@ config KALLSYMS_ABSOLUTE_PERCPU
 	default X86_64 && SMP
 
 config KALLSYMS_BASE_RELATIVE
-	bool
+	bool "Enable KALLSYMS_BASE_RELATIVE or not"
 	depends on KALLSYMS
 	default !IA64 && !(TILE && 64BIT)
 	help
